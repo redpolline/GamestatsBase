@@ -229,14 +229,18 @@ namespace GamestatsBase
                 }
 
                 response.Flush();
-                byte[] responseArray = response.ToArray();
-                response.Dispose();
-                response = null;
+                // Prevent Mono from throwing an ArgumentOutOfRangeException if the response is empty.
+                if (response.Length > 0)
+                {
+                    byte[] responseArray = response.ToArray();
+                    response.Dispose();
+                    response = null;
 
-                context.Response.OutputStream.Write(responseArray, 0, responseArray.Length);
+                    context.Response.OutputStream.Write(responseArray, 0, responseArray.Length);
 
-                if (ResponseVersion != GamestatsResponseVersions.Version1)
-                    context.Response.Write(ResponseChecksum(responseArray));
+                    if (ResponseVersion != GamestatsResponseVersions.Version1)
+                        context.Response.Write(ResponseChecksum(responseArray));
+                }
             }
             else
             {
